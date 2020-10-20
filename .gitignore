@@ -2,3 +2,4 @@ data
 target
 .idea
 *.iml
+aws_private_key
