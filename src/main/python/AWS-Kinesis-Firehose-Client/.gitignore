@@ -1,0 +1,14 @@
+# Virtual Environment
+venv
+
+# Intellij IDEA IDE File
+.idea
+
+# AWS Credentials (Ignore for security)
+aws_credentials.py
+
+# Local Data
+data
+
+# Cached Python Files
+__pycache__
