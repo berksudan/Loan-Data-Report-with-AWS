@@ -19,9 +19,9 @@ public class FileURIsRetriever {
 
     public static void main(String[] args) {
         FileURIsRetriever.Test(
-                "ASIAQTRTW4LT5WFWLGXA",
-                "dUn1TTiK/BB7grYMbGfR2MBUSzTgYmPKcoZuiDvQ",
-                "FwoGZXIvYXdzECwaDLwKHGiyt/k1fKrCayLKAR/oxA6S9Y3pfkpfnyjLvoQcn8d/WtQTEhdAVmvuHilDLRqGwvtNGfA/FO3MXvDh9SmVZo+qbUVvJkumK2XRZocJbBDoKy7S5j4RhebZww/1WyfVOPlVU0AcDm3cmlbQ3mZ3Imn6fKKIq8sBqn0RX2pzVGsxYF7pVHnBUIvQRoE0fIoZWkr/auiuHBtdBKKfqx9ZXWXFbtapIVWI7t4LS0805BZfh0AKli4ZtkLOMTYrx7ABXOZ+55v3EKOhBmre1DEeaOtj+lrN9YMo0+W8/AUyLdJkaP5FdvntFHEcf0KEQ6r1qsqHiaQB++nyPzuknCjWsj772v2/7rh/AUGrwQ=="
+                "EXAMPLE_ACCESS_KEY",
+                "EXAMPLE_SECRET_KEY",
+                "EXAMPLE_SESSION_TOKEN"
         );
     }
 
