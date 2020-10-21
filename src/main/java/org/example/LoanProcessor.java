@@ -1,8 +1,5 @@
 package org.example;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.DirectoryFileFilter;
-import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.apache.log4j.Level;
 import org.apache.spark.api.java.function.FilterFunction;
 import org.apache.spark.ml.feature.Bucketizer;
@@ -12,48 +9,53 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.types.DataTypes;
 
-import java.io.File;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.apache.spark.sql.functions.*;
 
 public class LoanProcessor {
+    public static final String DEF_REGION = "us-east-1", DEF_EXTENSION = ".gz";
+
     private final static String S3_BUCKET_PATH = "s3://loan-data-bucket-aws";
     private static final String ANNUAL_INCOME_COL = "annual_inc", lOAN_AMOUNT_COL = "loan_amnt", TERM_COL = "term";
     private static final String INCOME_RANGE_COL = "income range";
     private static final String FUNDED_COL = "funded_amnt", GRADE_COL = "grade", LOAN_STATUS_COL = "loan_status";
 
+    private static final String BUCKET_PATH = "s3://loan-data-bucket-aws/";
+    private static final String REPORT_ONE_OUTPUT_FILE = BUCKET_PATH + "report_one";
+    private static final String REPORT_TWO_OUTPUT_FILE = BUCKET_PATH + "report_two";
 
-    public static void main(String[] args) throws URISyntaxException {
-        final String BUCKET_PATH = "s3://loan-data-bucket-aws/";
-        final String REPORT_ONE_OUTPUT_FILE = BUCKET_PATH + "report_one";
-        final String REPORT_TWO_OUTPUT_FILE = BUCKET_PATH + "report_two";
+    public static void main(String[] args) {
+        if (args.length < 3) {
+            System.err.println("Usage: JavaWordCount <ACCESS_ID> <SECRET_KEY> <SESSION_TOKEN>");
+            System.exit(1);
+        }
+        final String ACCESS_ID = args[0];
+        final String SECRET_KEY = args[1];
+        final String SESSION_TOKEN = args[2];
 
-        URI u = new URI(REPORT_ONE_OUTPUT_FILE);
-        File filekk= (new File(u));
-        System.out.println(filekk.exists());
-        System.exit(174);
         // Start Spark Session.
         SparkSession spark = SparkSession.builder()
 //                .master("local[*]")
                 .appName("LoanProcessor")
                 .getOrCreate();
-        spark.sparkContext().setLogLevel(Level.ERROR.toString()); // FIXME: Can be enabled
+
+        spark.sparkContext().setLogLevel(Level.ERROR.toString()); // FIXME-NOTE: Can be enabled.
         System.out.println("[INFO] Loan Processor is being started..");
 
-        /*
-        // Remove Output Files If Exist
-        removeDirectoryIfExists(new File(REPORT_ONE_OUTPUT_FILE));
-        removeDirectoryIfExists(new File(REPORT_TWO_OUTPUT_FILE));
-         */
-        String[] FileURIs = FileURIsRetriever.retrieve();
-        String[] gzFiles = Arrays.stream(FileURIs).map(file -> S3_BUCKET_PATH + file).toArray(String[]::new);
+        FileURIsRetriever s3CSVFilesRetriever = FileURIsRetriever.builder()
+                .region(DEF_REGION)
+                .credentials(ACCESS_ID, SECRET_KEY, SESSION_TOKEN)
+                .bucketObjectsInfo("loan-data-bucket-aws", "20")
+                .extension(DEF_EXTENSION)
+                .build();
+
+        String[] gzFiles = s3CSVFilesRetriever.retrieve();
+        gzFiles = Arrays.stream(gzFiles)
+                .map(file -> S3_BUCKET_PATH + file)
+                .toArray(String[]::new);
 
         System.out.println("[INFO] GZIPed CSV Files:");
         Arrays.stream(gzFiles).forEach(System.out::println);
@@ -65,33 +67,19 @@ public class LoanProcessor {
         System.out.println("[INFO] Schema of Data:");
         loanDF.printSchema();
         System.out.println("[INFO] First Task Starting..");
-        firstTask(loanDF, REPORT_ONE_OUTPUT_FILE);
+        firstTask(loanDF);
         System.out.println("[INFO] Second Task Starting..");
-        secondTask(loanDF, REPORT_TWO_OUTPUT_FILE);
+        secondTask(loanDF);
         System.out.println("[INFO] Successfully Completed.");
     }
 
-    public static String[] retrieveSortedContentFiles(String parentDir, String ext) {
-        Collection<File> files = FileUtils.listFiles(
-                new File(parentDir),
-                new RegexFileFilter("^(.*?" + ext + ")"),
-                DirectoryFileFilter.DIRECTORY);
-
-        return files.stream() // Convert contentList to Stream in order to apply functions.
-                .filter(file -> file.toString().endsWith(ext)) // Filter with file extension.
-                .map(file -> Paths.get(file.toString()).toString()) // Prepend parent path.
-                .sorted() // Sort file-names alphabetically.
-                .toArray(String[]::new); // Convert to array of strings.
-    }
-
-
     public static Dataset<Row> retrieveMultipleCSVsMerged(SparkSession spark, String[] files) {
         // Get first csv file in order to keep header.
+        System.out.println("<<" + files[0] + ">>");
         Dataset<Row> firstDF = spark.read()
                 .option("header", "true")
                 .option("inferSchema", "true")
                 .csv(files[0]);
-
         // Get other csv files.
         String[] filesWithoutFirst = Arrays.copyOfRange(files, 1, files.length);
         Dataset<Row> otherDFsMerged = spark.read()
@@ -102,7 +90,7 @@ public class LoanProcessor {
         return firstDF.union(otherDFsMerged);
     }
 
-    private static void firstTask(Dataset<Row> loanDF, String outputFile) {
+    private static void firstTask(Dataset<Row> loanDF) {
         final double[] INCOME_INTERVAL_POINTS = {-1, 40000, 60000, 80000, 100000, Double.POSITIVE_INFINITY};
         final Map<String, String> BUCKET_NUMBERS_TO_NAMES = new HashMap<String, String>() {{
             put("0.0", "<40k");
@@ -138,10 +126,10 @@ public class LoanProcessor {
             df = df.withColumn(INCOME_RANGE_COL, regexp_replace(col(INCOME_RANGE_COL), e.getKey(), e.getValue()));
 
         df.show();
-        df.write().csv(outputFile);
+        df.write().csv(LoanProcessor.REPORT_ONE_OUTPUT_FILE);
     }
 
-    private static void secondTask(Dataset<Row> loanDF, String outputFile) {
+    private static void secondTask(Dataset<Row> loanDF) {
         final int LOAN_AMOUNT_COL_IDX = 0, FUNDED_COL_IDX = 1, LOAN_STATUS_COL_IDX = 3;
 
         // Select related columns to boost performance
@@ -172,27 +160,6 @@ public class LoanProcessor {
                 .sort(GRADE_COL); // Sort by grades.
 
         df.show();
-        df.write().csv(outputFile);
+        df.write().csv(LoanProcessor.REPORT_TWO_OUTPUT_FILE);
     }
-
-    /*
-    public static void removeDirectoryIfExists(File dir) {
-        if (!dir.exists()) {
-            System.out.println("[INFO] " + dir.getPath() + " not exists.");
-            return;
-        }
-        if (dir.isDirectory()) {
-            File[] files = dir.listFiles();
-            if (files != null && files.length > 0) {
-                for (File aFile : files) {
-                    removeDirectoryIfExists(aFile);
-                }
-            }
-        }
-        //noinspection ResultOfMethodCallIgnored
-        dir.delete();
-        System.out.println("[INFO] " + dir.getPath() + " deleted.");
-    }
-     */
-
 }
