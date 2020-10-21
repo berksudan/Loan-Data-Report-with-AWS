@@ -19,7 +19,7 @@ public class LoanProcessor {
     public static final String DEF_REGION = "us-east-1", DEF_EXTENSION = ".gz";
 
     private final static String S3_BUCKET_PATH = "s3://loan-data-bucket-aws";
-    private static final String ANNUAL_INCOME_COL = "annual_inc", lOAN_AMOUNT_COL = "loan_amnt", TERM_COL = "term";
+    private static final String ANNUAL_INCOME_COL = "annual_inc", LOAN_AMOUNT_COL = "loan_amnt", TERM_COL = "term";
     private static final String INCOME_RANGE_COL = "income range";
     private static final String FUNDED_COL = "funded_amnt", GRADE_COL = "grade", LOAN_STATUS_COL = "loan_status";
 
@@ -29,7 +29,7 @@ public class LoanProcessor {
 
     public static void main(String[] args) {
         if (args.length < 3) {
-            System.err.println("Usage: JavaWordCount <ACCESS_ID> <SECRET_KEY> <SESSION_TOKEN>");
+            System.err.println("Usage: LoanProcessor <ACCESS_ID> <SECRET_KEY> <SESSION_TOKEN>");
             System.exit(1);
         }
         final String ACCESS_ID = args[0];
@@ -101,7 +101,7 @@ public class LoanProcessor {
         }};
 
         // Select related columns to boost performance.
-        Dataset<Row> df = loanDF.select(ANNUAL_INCOME_COL, lOAN_AMOUNT_COL, TERM_COL);
+        Dataset<Row> df = loanDF.select(ANNUAL_INCOME_COL, LOAN_AMOUNT_COL, TERM_COL);
         // Drop null values.
         df = df.na().drop();
 
@@ -116,9 +116,9 @@ public class LoanProcessor {
         df = df.withColumn(TERM_COL, regexp_replace(col(TERM_COL), " 36 months", "36"))
                 .withColumn(TERM_COL, regexp_replace(col(TERM_COL), " 60 months", "60"));
 
-        // Group By INCOME_RANGE_COL and aggregate lOAN_AMOUNT_COL and INCOME_RANGE_COL
+        // Group By INCOME_RANGE_COL and aggregate LOAN_AMOUNT_COL and INCOME_RANGE_COL
         df = df.groupBy(INCOME_RANGE_COL)
-                .agg(avg(lOAN_AMOUNT_COL).as("avg amount"), avg(TERM_COL).as("avg term"))
+                .agg(avg(LOAN_AMOUNT_COL).as("avg amount"), avg(TERM_COL).as("avg term"))
                 .sort(INCOME_RANGE_COL);
 
         // Change bucket numbers to categorical bucket names.
@@ -133,7 +133,7 @@ public class LoanProcessor {
         final int LOAN_AMOUNT_COL_IDX = 0, FUNDED_COL_IDX = 1, LOAN_STATUS_COL_IDX = 3;
 
         // Select related columns to boost performance
-        Dataset<Row> df = loanDF.select(lOAN_AMOUNT_COL, FUNDED_COL, GRADE_COL, LOAN_STATUS_COL);
+        Dataset<Row> df = loanDF.select(LOAN_AMOUNT_COL, FUNDED_COL, GRADE_COL, LOAN_STATUS_COL);
         // Drop null values
         df = df.na().drop();
 
