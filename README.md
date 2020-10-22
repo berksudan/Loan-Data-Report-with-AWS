@@ -4,8 +4,8 @@
 ![Architecture Design Scheme](docs/architecture_design_scheme.png)
 
 ## Prerequisites
-+ Make sure that a vanilla and default S3 bucket was created, for this case study a S3 bucket named ``loan-data-bucket-aws`` was created.
-+ Make sure that you are using the right region, for this case study the region named ``us-east-1`` is used. Note that, if you use a different region, accordingly, you ought to change the region name in the code and links stated in this case study.
++ *Make sure that,* a vanilla and default S3 bucket was created, for this case study a S3 bucket named ``loan-data-bucket-aws`` was created.
++ *Make sure that,* you are using the right region, for this case study, the region named ``us-east-1`` is used. Note that, if you use a different region, accordingly, you ought to change the region name in the code and links stated in this case study.
 
 ## Module 1: Kinesis Firehose Client
 
@@ -17,7 +17,7 @@
 ### How to Run
 + Get Credentials: ***aws_access_key_id***, ***aws_secret_access_key***, ***aws_session_token***
 
-+ Build Project.
++ Build Project:
 	-  Go to folder: ``Loan-Data-Report-with-AWS/src/main/python/AWS-Kinesis-Firehose-Client/``.
 	-  Run command using terminal:
 		```bash
@@ -36,10 +36,13 @@
 + Amazon S3 SDK for Java
 + Java 8
 
+### How to Compile
++ <SOON>
+
 ### How to Run
 + Get Credentials: ***aws_access_key_id***, ***aws_secret_access_key***, ***aws_session_token***
 
-+ Create Cluster.
++ Create Cluster:
     -  Click: "AWS Console"
     -  Head to: https://console.aws.amazon.com/elasticmapreduce/home?region=us-east-1
     -  Click: "Create Cluster"
@@ -62,7 +65,7 @@
 	[Security and access]: DEFAULT
 	```
 
-+ Check S3 Bucket.
++ Check S3 Bucket:
 	-  Wait until cluster is created.
 	-  Head to: https://s3.console.aws.amazon.com/s3/buckets/loan-data-bucket-aws/?region=us-east-1
 	-  You will see directories ``report_one/`` and ``report_two``.
