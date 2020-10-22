@@ -1,4 +1,4 @@
-# Documentation of "Loan Data Reporting with AWS"
+# Loan Data Reporting with AWS — A Case Study
 
 ## Architecture Design Scheme
 ![Architecture Design Scheme](docs/architecture_design_scheme.png)
@@ -45,21 +45,21 @@
     -  Click: "Create Cluster"
     -  Cluster Configurations:
 	```
-		[Logging]: Enabled
-		[Logging - S3 Folder]: s3://loan-data-bucket-aws/logs/
-		[Launch mode]: Step execution
-		[Step type]: Spark Application
-		[Step type-Configure]:
-			- [Spark-submit options]: --class loanprocessor.LoanProcessor
-			- [Application location]:
-			s3://loan-data-bucket-aws/Loan-Data-Report-with-AWS-1.0-SNAPSHOT-jar-with-dependencies.jar
-			- [Arguments] (NOTE: Make sure you used quote around parameters!):
-				  "aws_access_key_id"
-				  "aws_secret_access_key"
-				  "aws_session_token"
-		[Software configuration]: emr-5.31.0
-		[Hardware configuration]: m4.large, 3 instances
-		[Security and access]: DEFAULT
+	[Logging]: Enabled
+	[Logging - S3 Folder]: s3://loan-data-bucket-aws/logs/
+	[Launch mode]: Step execution
+	[Step type]: Spark Application
+	[Step type-Configure]:
+		- [Spark-submit options]: --class loanprocessor.LoanProcessor
+		- [Application location]:
+		s3://loan-data-bucket-aws/Loan-Data-Report-with-AWS-1.0-SNAPSHOT-jar-with-dependencies.jar
+		- [Arguments] (NOTE: Make sure you used quote around parameters!):
+			  "aws_access_key_id"
+			  "aws_secret_access_key"
+			  "aws_session_token"
+	[Software configuration]: emr-5.31.0
+	[Hardware configuration]: m4.large, 3 instances
+	[Security and access]: DEFAULT
 	```
 
 + Check S3 Bucket.
