@@ -10,23 +10,21 @@
 ## Module 1: Kinesis Firehose Client
 
 ### Used Modules
-+ Python - 3.6
-+ boto3 (AWS S3 SDK for Python) -> for creating s3client and writing data to s3
-+ wget -> for downloading csv data initially
++ Python 3.6
++ boto3 (AWS S3 SDK for Python), for creating s3client and writing data to s3
++ wget, for downloading csv data initially
 
-### How to Run
+### How to Build and Run
 + Get Credentials: ***aws_access_key_id***, ***aws_secret_access_key***, ***aws_session_token***
-
-+ Build Project:
-	-  Go to folder: ``Loan-Data-Report-with-AWS/src/main/python/AWS-Kinesis-Firehose-Client/``.
-	-  Run command using terminal:
-		```bash
-		./build.sh
-		```
-	-  Run command using terminal (NOTE: Make sure you used quote around parameters!):
-		```bash
-		venv/bin/python3 firehose_client.py "aws_access_key_id" "aws_secret_access_key" "aws_session_token"
-		```
++ Go to folder: ``Loan-Data-Report-with-AWS/src/main/python/AWS-Kinesis-Firehose-Client/``.
++ Run command using terminal to build project:
+	```bash
+	./build.sh
+	```
++ Run command using terminal (NOTE: Make sure you used quote around parameters!):
+	```bash
+	venv/bin/python3 firehose_client.py "aws_access_key_id" "aws_secret_access_key" "aws_session_token"
+	```
 
 ## Module 2: Fire URIs Retriever + Apache Spark Application
 
@@ -37,7 +35,7 @@
 + Java 8
 
 ### How to Compile
-+ <SOON>
++ _SOON_
 
 ### How to Run
 + Get Credentials: ***aws_access_key_id***, ***aws_secret_access_key***, ***aws_session_token***
