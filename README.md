@@ -7,6 +7,7 @@
 + *Make sure that,* a vanilla and default ***S3 bucket*** was created, for this case study, a S3 bucket named ``loan-data-bucket-aws`` was created.
 + *Make sure that,* you are using the right ***region***, for this case study, the region named ``us-east-1`` is used. Note that, if you use a different region, accordingly, you ought to change the region name in the code and links stated in this case study.
 + *Make sure that,* ***maven*** is installed and updated in your computer. It will be used to compile java code and to build jar files.
++ *Make sure that,* a Kinesis Data Firehose Delivery Stream was created and has access to your S3 bucket. For this case study, a delivery stream named ``Loan-Data-Loader`` was created. Its S3 Compression is ``GZIP`` and its source is configured as ``Direct PUT or other sources``.
 
 ## Module 1: Kinesis Firehose Client
 
