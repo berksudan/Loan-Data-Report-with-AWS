@@ -1,4 +1,4 @@
-package org.example;
+package loanprocessing;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicSessionCredentials;
@@ -42,7 +42,6 @@ public class FileURIsRetriever {
         return summaries.stream()
                 .map(S3ObjectSummary::getKey)
                 .filter(name -> name.endsWith(extension))
-                .map(file -> "/" + file)
                 .sorted()
                 .toArray(String[]::new);
     }

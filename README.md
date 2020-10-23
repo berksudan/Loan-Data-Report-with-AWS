@@ -4,8 +4,9 @@
 ![Architecture Design Scheme](docs/architecture_design_scheme.png)
 
 ## Prerequisites
-+ *Make sure that,* a vanilla and default S3 bucket was created, for this case study a S3 bucket named ``loan-data-bucket-aws`` was created.
-+ *Make sure that,* you are using the right region, for this case study, the region named ``us-east-1`` is used. Note that, if you use a different region, accordingly, you ought to change the region name in the code and links stated in this case study.
++ *Make sure that,* a vanilla and default ***S3 bucket*** was created, for this case study, a S3 bucket named ``loan-data-bucket-aws`` was created.
++ *Make sure that,* you are using the right ***region***, for this case study, the region named ``us-east-1`` is used. Note that, if you use a different region, accordingly, you ought to change the region name in the code and links stated in this case study.
++ *Make sure that,* ***maven*** is installed and updated in your computer. It will be used to compile java code and to build jar files.
 
 ## Module 1: Kinesis Firehose Client
 
@@ -15,16 +16,19 @@
 + wget, for downloading csv data initially
 
 ### How to Build and Run
-+ Get Credentials: ***aws_access_key_id***, ***aws_secret_access_key***, ***aws_session_token***
-+ Go to folder: ``Loan-Data-Report-with-AWS/src/main/python/AWS-Kinesis-Firehose-Client/``.
-+ Run command using terminal to build project:
-	```bash
-	./build.sh
-	```
-+ Run command using terminal (NOTE: Make sure you used quote around parameters!):
-	```bash
-	venv/bin/python3 firehose_client.py "aws_access_key_id" "aws_secret_access_key" "aws_session_token"
-	```
++ Get following credentials from your AWS Account Console:
+	- ***aws_access_key_id***
+	- ***aws_secret_access_key***
+	- ***aws_session_token***
++ Enter your credentials to ``<PROJECT_FOLDER>/modules/AWS-Kinesis-Firehose-Client/credentials.json``.
++ Run command using terminal to build:
+```bash
+$ <PROJECT_FOLDER>/modules/AWS-Kinesis-Firehose-Client/build.sh
+```
++ Run command using terminal to run:
+```bash
+$ <PROJECT_FOLDER>/modules/AWS-Kinesis-Firehose-Client/run.sh
+```
 
 ## Module 2: Fire URIs Retriever + Apache Spark Application
 
@@ -35,10 +39,20 @@
 + Java 8
 
 ### How to Compile
-+ _SOON_
++ Go to folder: ``<PROJECT_FOLDER>/modules/Spark-Loan-Processing/``.
++ Run command using terminal to compile:
+```bash
+$ mvn install
+```
++ You will see the ``<PROJECT_FOLDER>/modules/Spark-Loan-Processing/target/`` directory after compilation.
++ Once compilation is completed, you will see file ``<PROJECT_FOLDER>/modules/Spark-Loan-Processing/target/Loan-Data-Report-with-AWS-1.0-SNAPSHOT-jar-with-dependencies.jar``.
++ Simply, upload jar file named ``Loan-Data-Report-with-AWS-1.0-SNAPSHOT-jar-with-dependencies.jar`` to your S3 bucket.
 
 ### How to Run
-+ Get Credentials: ***aws_access_key_id***, ***aws_secret_access_key***, ***aws_session_token***
++ Get following credentials from your AWS Account Console:
+	- ***aws_access_key_id***
+	- ***aws_secret_access_key***
+	- ***aws_session_token***
 
 + Create Cluster:
     -  Click: "AWS Console"
@@ -51,7 +65,7 @@
 	[Launch mode]: Step execution
 	[Step type]: Spark Application
 	[Step type-Configure]:
-		- [Spark-submit options]: --class loanprocessor.LoanProcessor
+		- [Spark-submit options]: --class loanprocessing.LoanProcessor
 		- [Application location]:
 		s3://loan-data-bucket-aws/Loan-Data-Report-with-AWS-1.0-SNAPSHOT-jar-with-dependencies.jar
 		- [Arguments] (NOTE: Make sure you used quote around parameters!):
@@ -66,7 +80,7 @@
 + Check S3 Bucket:
 	-  Wait until cluster is created.
 	-  Head to: https://s3.console.aws.amazon.com/s3/buckets/loan-data-bucket-aws/?region=us-east-1
-	-  You will see directories ``report_one/`` and ``report_two``.
+	-  You will see directories ``report_one/`` and ``report_two/``.
 
 ## References
 - http://constructedtruth.com/2020/03/07/sending-data-to-kinesis-firehose-using-python/

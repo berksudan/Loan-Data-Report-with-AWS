@@ -1,4 +1,5 @@
 import csv
+import json
 import os
 import sys
 import zipfile
@@ -7,22 +8,18 @@ from pathlib import Path
 import boto3
 import wget
 
-DATA_URL = "https://s3-eu-west-1.amazonaws.com/vngrs.com/challenge/loan_report/loan_data.zip"
-DELIVERY_STREAM_NAME = "Loan-Data-Loader"
-REGION_NAME = "us-east-1"
-
-CSV_PARENT_DIR = "data"
-CSV_NAME = "loan.csv"
+PROPERTIES_FILE = 'properties.json'
+CREDENTIALS_FILE = 'credentials.json'
 
 
 def list_to_csv_line(row) -> str: return ','.join(row) + '\n'
 
 
-def create_aws_session(aws_access_key_id, aws_secret_access_key, aws_session_token, client_service_name='firehose'):
+def create_aws_session(aws_access_key_id, aws_secret_access_key, aws_session_token, region, client_service_name):
     session = boto3.Session(aws_access_key_id=aws_access_key_id,
                             aws_secret_access_key=aws_secret_access_key,
                             aws_session_token=aws_session_token,
-                            region_name=REGION_NAME)
+                            region_name=region)
     return session.client(client_service_name)
 
 
@@ -45,19 +42,22 @@ def download_data(data_url: str, data_parent_dir: str) -> str:
 
 
 def main():
-    if len(sys.argv) < 4:
-        exit('[ERROR] Arguments should be "<AWS_ACCESS_KEY_ID>" "<AWS_SECRET_ACCESS_KEY>" "<AWS_SESSION_TOKEN>"')
-    zip_full_path = download_data(data_url=DATA_URL, data_parent_dir=CSV_PARENT_DIR)
+    props = json.load(open(PROPERTIES_FILE))
+    credentials = json.load(open(CREDENTIALS_FILE))
+
+    zip_full_path = download_data(data_url=props['DATA_URL'], data_parent_dir=props['LOCAL_CSV_PARENT_DIR'])
 
     loan_data_loader_firehose_client = create_aws_session(
-        aws_access_key_id=sys.argv[1],
-        aws_secret_access_key=sys.argv[2],
-        aws_session_token=sys.argv[3])
+        aws_access_key_id=credentials['AWS_ACCESS_KEY_ID'],
+        aws_secret_access_key=credentials['AWS_SECRET_ACCESS_KEY'],
+        aws_session_token=credentials['AWS_SESSION_TOKEN'],
+        region=props['REGION_NAME'],
+        client_service_name='firehose')
 
     records = []
     with zipfile.ZipFile(zip_full_path, 'r') as zip_ref:
-        zip_ref.extractall(CSV_PARENT_DIR)
-    csv_full_path = str(Path(CSV_PARENT_DIR, CSV_NAME))
+        zip_ref.extractall(props['LOCAL_CSV_PARENT_DIR'])
+    csv_full_path = str(Path(props['LOCAL_CSV_PARENT_DIR'], props['LOCAL_CSV_FILE_NAME']))
     num_lines = extract_num_lines(csv_full_path)
     with open(csv_full_path, 'r') as csv_file:
         loan_data_reader = csv.reader(csv_file)
@@ -66,7 +66,7 @@ def main():
         for loan_row in loan_data_reader:
             if record_count % 500 == 0:
                 loan_data_loader_firehose_client.put_record_batch(
-                    DeliveryStreamName=DELIVERY_STREAM_NAME,
+                    DeliveryStreamName=props['FIREHOSE_DELIVERY_STREAM_NAME'],
                     Records=records)
                 print('[INFO] Delta-Transferred:%d, Percentage:%%%.3f' % (record_count, 100 * record_count / num_lines))
                 records.clear()
@@ -75,7 +75,7 @@ def main():
         if len(records) > 0:
             print(len(records))
             response = loan_data_loader_firehose_client.put_record_batch(
-                DeliveryStreamName=DELIVERY_STREAM_NAME,
+                DeliveryStreamName=props['FIREHOSE_DELIVERY_STREAM_NAME'],
                 Records=records
             )
             print(response)

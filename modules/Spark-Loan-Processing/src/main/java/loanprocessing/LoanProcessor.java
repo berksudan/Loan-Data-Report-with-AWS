@@ -1,4 +1,4 @@
-package org.example;
+package loanprocessing;
 
 import org.apache.log4j.Level;
 import org.apache.spark.api.java.function.FilterFunction;
@@ -18,20 +18,20 @@ import static org.apache.spark.sql.functions.*;
 public class LoanProcessor {
     public static final String DEF_REGION = "us-east-1", DEF_EXTENSION = ".gz";
 
-    private final static String S3_BUCKET_PATH = "s3://loan-data-bucket-aws";
     private static final String ANNUAL_INCOME_COL = "annual_inc", LOAN_AMOUNT_COL = "loan_amnt", TERM_COL = "term";
     private static final String INCOME_RANGE_COL = "income range";
     private static final String FUNDED_COL = "funded_amnt", GRADE_COL = "grade", LOAN_STATUS_COL = "loan_status";
 
-    private static final String BUCKET_PATH = "s3://loan-data-bucket-aws/";
-    private static final String REPORT_ONE_OUTPUT_FILE = BUCKET_PATH + "report_one";
-    private static final String REPORT_TWO_OUTPUT_FILE = BUCKET_PATH + "report_two";
+    private static final String S3_BUCKET_PATH = "s3://loan-data-bucket-aws/";
+    private static final String FIRST_REPORT_OUTPUT_FILE = S3_BUCKET_PATH + "report_one";
+    private static final String SECOND_REPORT_OUTPUT_FILE = S3_BUCKET_PATH + "report_two";
 
     public static void main(String[] args) {
         if (args.length < 3) {
-            System.err.println("Usage: LoanProcessor <ACCESS_ID> <SECRET_KEY> <SESSION_TOKEN>");
+            System.err.println("Usage: LoanProcessor \"<ACCESS_ID>\" \"<<SECRET_KEY>\" \"<SESSION_TOKEN>\"");
             System.exit(1);
         }
+
         final String ACCESS_ID = args[0];
         final String SECRET_KEY = args[1];
         final String SESSION_TOKEN = args[2];
@@ -42,7 +42,7 @@ public class LoanProcessor {
                 .appName("LoanProcessor")
                 .getOrCreate();
 
-        spark.sparkContext().setLogLevel(Level.ERROR.toString()); // FIXME-NOTE: Can be enabled.
+        spark.sparkContext().setLogLevel(Level.ERROR.toString()); // Can be enabled.
         System.out.println("[INFO] Loan Processor is being started..");
 
         FileURIsRetriever s3CSVFilesRetriever = FileURIsRetriever.builder()
@@ -62,6 +62,9 @@ public class LoanProcessor {
 
         Dataset<Row> loanDF = retrieveMultipleCSVsMerged(spark, gzFiles)
                 .withColumn(ANNUAL_INCOME_COL, col(ANNUAL_INCOME_COL).cast(DataTypes.DoubleType)); // For consistency.
+
+        // Cache the data frame before several operations.
+        loanDF.persist();
 
         System.out.println("[INFO] Total Data Count: " + loanDF.count());
         System.out.println("[INFO] Schema of Data:");
@@ -126,7 +129,7 @@ public class LoanProcessor {
             df = df.withColumn(INCOME_RANGE_COL, regexp_replace(col(INCOME_RANGE_COL), e.getKey(), e.getValue()));
 
         df.show();
-        df.write().csv(LoanProcessor.REPORT_ONE_OUTPUT_FILE);
+        df.coalesce(1).write().csv(LoanProcessor.FIRST_REPORT_OUTPUT_FILE);
     }
 
     private static void secondTask(Dataset<Row> loanDF) {
@@ -160,6 +163,6 @@ public class LoanProcessor {
                 .sort(GRADE_COL); // Sort by grades.
 
         df.show();
-        df.write().csv(LoanProcessor.REPORT_TWO_OUTPUT_FILE);
+        df.coalesce(1).write().csv(LoanProcessor.SECOND_REPORT_OUTPUT_FILE);
     }
 }

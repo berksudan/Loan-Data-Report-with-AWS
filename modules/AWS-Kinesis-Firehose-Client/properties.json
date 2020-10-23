@@ -1,0 +1,7 @@
+{
+	"REGION_NAME" : "us-east-1",
+	"FIREHOSE_DELIVERY_STREAM_NAME" : "Loan-Data-Loader",
+	"DATA_URL": "https://s3-eu-west-1.amazonaws.com/vngrs.com/challenge/loan_report/loan_data.zip",
+	"LOCAL_CSV_PARENT_DIR": "data",
+	"LOCAL_CSV_FILE_NAME": "loan.csv"
+}
