@@ -37,7 +37,7 @@ def download_data(data_url: str, data_parent_dir: str) -> str:
         wget.download(data_url, str(csv_target_path))
         print("[INFO] Data is downloaded to:", csv_target_path)
     else:
-        print("[INFO] Data exists: " + str(csv_target_path) + ", so need to download.")
+        print("[INFO] Data exists: " + str(csv_target_path) + ", so no need to download.")
     return csv_target_path
 
 
@@ -68,7 +68,7 @@ def main():
                 loan_data_loader_firehose_client.put_record_batch(
                     DeliveryStreamName=props['FIREHOSE_DELIVERY_STREAM_NAME'],
                     Records=records)
-                print('[INFO] Delta-Transferred:%d, Percentage:%%%.3f' % (record_count, 100 * record_count / num_lines))
+                print('[INFO] Transferred: %d, Percentage: %%%.3f' % (record_count, 100 * record_count / num_lines))
                 records.clear()
             records.append({"Data": list_to_csv_line(loan_row)})
             record_count += 1
