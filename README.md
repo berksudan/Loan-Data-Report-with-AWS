@@ -1,5 +1,9 @@
 # Loan Data Reporting with AWS — A Case Study
 
+## About
+
+It is intended to be delivered a system built on Amazon Web Services using Apache Spark, Java and Python. The system completes objectives defined in the *Objectives* section with given data to generate loan reports.
+
 ## Architecture Design Scheme
 ![Architecture Design Scheme](docs/architecture_design_scheme.png)
 
@@ -8,6 +12,17 @@
 + *Make sure that,* you are using the right ***region***, for this case study, the region named ``us-east-1`` is used. Note that, if you use a different region, accordingly, you ought to change the region name in the code and links stated in this case study.
 + *Make sure that,* ***maven*** is installed and updated in your computer. It will be used to compile java code and to build jar files.
 + *Make sure that,* a Kinesis Data Firehose Delivery Stream was created and has access to your S3 bucket. For this case study, a delivery stream named ``Loan-Data-Loader`` was created. Its S3 Compression is ``GZIP`` and its source is configured as ``Direct PUT or other sources``.
+
+## Objectives
++ Using the LendingClub public loan data two reports are generated using Aws Kinesis Firehose, S3 and EMR.
++ CSV data is sent to Kinesis Firehose to be written to a S3 bucket in gzip format using a Firehose client application.
++ A Spark application is generated two reports described below in desired format in the same bucket under *report_one* and *report_two* directories.
++ The Spark application read data from S3 bucket and also application run on an EMR cluster, and the cluster is configured to auto terminate after Spark application finished.
+
+## Reports
+**1.** Given this yearly income ranges, <40k, 40-60k, 60-80k, 80-100k and >100k. Generate a report that contains average loan amount and average term of loan in months based on these 5 income ranges. Result file is like “income range, avg amount, avg term”
+
+**2.** In loans which are fully funded and loan amount greater than $1000, what is the fully paid amount rate for every loan grade of the borrowers. Result file is like “credit grade,fully paid amount rate”, eg.“A,%95”
 
 ## Module 1: Kinesis Firehose Client
 
@@ -82,6 +97,9 @@ $ mvn install
 	-  Wait until cluster is created.
 	-  Head to: https://s3.console.aws.amazon.com/s3/buckets/loan-data-bucket-aws/?region=us-east-1
 	-  You will see directories ``report_one/`` and ``report_two/``.
+
+## Dataset
+Dataset URL already defined in ``DATA_URL`` property in file ``<PROJECT_FOLDER>/modules/AWS-Kinesis-Firehose-Client/properties.json``. If this dataset URL is absent, you can find the dataset [here](https://www.lendingclub.com/info/download-data.action), the zip archive contains raw data in csv format and an excel dictionary file explaining fields of data.
 
 ## References
 - http://constructedtruth.com/2020/03/07/sending-data-to-kinesis-firehose-using-python/
