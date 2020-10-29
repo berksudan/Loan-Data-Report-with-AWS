@@ -20,9 +20,9 @@ It is intended to be delivered a system built on Amazon Web Services using Apach
 + The Spark application read data from S3 bucket and also application run on an EMR cluster, and the cluster is configured to auto terminate after Spark application finished.
 
 ## Reports
-**1.** Given this yearly income ranges, <40k, 40-60k, 60-80k, 80-100k and >100k. Generate a report that contains average loan amount and average term of loan in months based on these 5 income ranges. Result file is like “income range, avg amount, avg term”
+**1.** According to the given yearly income ranges, {<40k, 40-60k, 60-80k, 80-100k, >100k}, the application generates a report that contains average loan amount and average term of loan in months based on these 5 income ranges. Result file is like "income range, avg amount, avg term"
 
-**2.** In loans which are fully funded and loan amount greater than $1000, what is the fully paid amount rate for every loan grade of the borrowers. Result file is like “credit grade,fully paid amount rate”, eg.“A,%95”
+**2.** In loans which are fully funded and loan amount greater than $1000, It is extacted the fully paid amount rate for every loan grade of the borrowers. Result file is like "credit grade,fully paid amount rate", eg."A,%95"
 
 ## Module 1: Kinesis Firehose Client
 
